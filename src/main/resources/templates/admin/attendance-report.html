@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Attendance Report')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-admin(activePage='reports')}"></aside>
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1>Attendance Report</h1>
+          <p class="page-subtitle" th:text="${classroom.className + ' (' + classroom.classCode + ')'}"></p>
+        </div>
+        <a th:href="@{/admin/reports}" class="btn-secondary"><i class="fas fa-arrow-left"></i> Back</a>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <table class="data-table">
+            <thead>
+              <tr><th>#</th><th>Student Name</th><th>Username</th><th>Attendance %</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr th:each="row, i : ${report}">
+                <td th:text="${i.index + 1}">1</td>
+                <td th:text="${row[0].fullName}">Name</td>
+                <td th:text="${row[0].username}">user</td>
+                <td>
+                  <div class="pct-bar-wrap">
+                    <div class="pct-bar" th:style="'width:' + ${row[1]} + '%'"
+                         th:classappend="${row[1] >= 75} ? 'good' : 'bad'"></div>
+                    <span th:text="${row[1] + '%'}">0%</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="badge"
+                        th:classappend="${row[1] >= 75} ? 'success' : 'danger'"
+                        th:text="${row[1] >= 75} ? 'OK' : 'Low'">OK</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

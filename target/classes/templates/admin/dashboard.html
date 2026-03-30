@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Admin Dashboard')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-admin(activePage='dashboard')}"></aside>
+    <main class="main-content">
+      <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    
+  <div class="page-header">
+    <div>
+      <h1>Admin Dashboard</h1>
+      <p class="page-subtitle">System overview and management controls.</p>
+    </div>
+  </div>
+
+  <!-- System Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+      <div class="stat-info">
+        <span class="stat-value" th:text="${totalUsers}">0</span>
+        <span class="stat-label">Total Users</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="fas fa-user-graduate"></i></div>
+      <div class="stat-info">
+        <span class="stat-value" th:text="${totalStudents}">0</span>
+        <span class="stat-label">Students</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple"><i class="fas fa-chalkboard-teacher"></i></div>
+      <div class="stat-info">
+        <span class="stat-value" th:text="${totalFaculty}">0</span>
+        <span class="stat-label">Faculty</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange"><i class="fas fa-school"></i></div>
+      <div class="stat-info">
+        <span class="stat-value" th:text="${totalClasses}">0</span>
+        <span class="stat-label">Classrooms</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <!-- Recent Users -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fas fa-users"></i> Users</h3>
+        <a th:href="@{/admin/users}" class="link-all">Manage all →</a>
+      </div>
+      <div class="card-body">
+        <div th:each="u : ${recentUsers}" class="list-item">
+          <div class="list-item-icon">
+            <i th:class="${u.role.name() == 'ADMIN' ? 'fas fa-user-shield' : (u.role.name() == 'FACULTY' ? 'fas fa-chalkboard-teacher' : 'fas fa-user-graduate')}"></i>
+          </div>
+          <div class="list-item-content">
+            <strong th:text="${u.fullName}">Name</strong>
+            <span th:text="${u.email}">email</span>
+          </div>
+          <span th:class="${u.role.name() == 'ADMIN' ? 'badge danger' : (u.role.name() == 'FACULTY' ? 'badge warning' : 'badge success')}" 
+                th:text="${u.role}">ROLE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post Global Announcement -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fas fa-bullhorn"></i> Post Global Announcement</h3>
+      </div>
+      <div class="card-body">
+        <form th:action="@{/admin/announcements/post}" method="post" class="inline-form-v">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="title" placeholder="e.g. Holiday Notice" required/>
+          </div>
+          <div class="form-group">
+            <label>Content</label>
+            <textarea name="content" rows="3" required placeholder="Announcement body..."></textarea>
+          </div>
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-paper-plane"></i> Post to All
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Announcements List -->
+  <div class="card">
+    <div class="card-header">
+      <h3><i class="fas fa-list"></i> All Announcements</h3>
+    </div>
+    <div class="card-body">
+      <div th:if="${recentAnn.empty}" class="empty-state">
+        <i class="fas fa-bullhorn"></i>
+        <p>No announcements yet.</p>
+      </div>
+      <table th:if="${!recentAnn.empty}" class="data-table">
+        <thead>
+          <tr><th>Title</th><th>Posted By</th><th>Target</th><th>Date</th><th>Action</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="ann : ${recentAnn}">
+            <td th:text="${ann.title}">Title</td>
+            <td th:text="${ann.postedBy.fullName}">By</td>
+            <td>
+              <span th:class="${ann.classroom == null ? 'badge info' : 'badge success'}"
+                    th:text="${ann.classroom == null ? 'Global' : ann.classroom.classCode}">
+                    Global
+              </span>
+            </td>
+            <td th:text="${#temporals.format(ann.createdAt,'dd MMM yyyy')}">Date</td>
+            <td>
+              <form th:action="@{/admin/announcements/delete/{id}(id=${ann.id})}" method="post"
+                    onsubmit="return confirm('Delete this announcement?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <button type="submit" class="btn-icon danger"><i class="fas fa-trash"></i></button>
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+```
+
+  </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
+      

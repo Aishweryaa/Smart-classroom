@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Attendance')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-student(activePage='attendance')}"></aside>
+    <main class="main-content">
+
+      <div class="page-header">
+        <div>
+          <h1><i class="fas fa-calendar-check"></i> My Attendance</h1>
+          <p class="page-subtitle">Track your attendance across all enrolled classes.</p>
+        </div>
+      </div>
+
+      <!-- Class selector -->
+      <div class="card">
+        <div class="card-header"><h3>Select a Class</h3></div>
+        <div class="card-body">
+          <form th:action="@{/student/attendance}" method="get" class="inline-form">
+            <select name="classId" onchange="this.form.submit()">
+              <option value="">-- Choose Class --</option>
+              <option th:each="cls : ${classes}"
+                      th:value="${cls.id}"
+                      th:text="${cls.className + ' (' + cls.classCode + ')'}"
+                      th:selected="${selectedId != null and selectedId == cls.id}">
+              </option>
+            </select>
+          </form>
+        </div>
+      </div>
+
+      <!-- Attendance result -->
+      <div th:if="${records != null}" class="card">
+        <div class="card-header">
+          <h3>Attendance Records</h3>
+          <span th:if="${percentage >= 75}" class="attendance-pct good" th:text="${percentage + '%'}">0%</span>
+          <span th:if="${percentage < 75}"  class="attendance-pct bad"  th:text="${percentage + '%'}">0%</span>
+        </div>
+        <div class="card-body">
+
+          <div th:if="${percentage < 75}" class="alert alert-error">
+            <i class="fas fa-exclamation-triangle"></i>
+            Your attendance is below <strong>75%</strong>. You may be debarred from exams.
+          </div>
+          <div th:if="${percentage >= 75}" class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            Good standing! Keep it up.
+          </div>
+
+          <div th:if="${records.size() == 0}" class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <p>No attendance records found yet.</p>
+          </div>
+
+          <table th:if="${records.size() > 0}" class="data-table">
+            <thead>
+              <tr><th>#</th><th>Date</th><th>Status</th><th>Marked By</th></tr>
+            </thead>
+            <tbody>
+              <tr th:each="rec, i : ${records}">
+                <td th:text="${i.index + 1}">1</td>
+                <td th:text="${rec.date}">2024-01-01</td>
+                <td>
+                  <span th:if="${rec.status.name() == 'PRESENT'}" class="badge success">PRESENT</span>
+                  <span th:if="${rec.status.name() == 'ABSENT'}"  class="badge danger">ABSENT</span>
+                  <span th:if="${rec.status.name() == 'LATE'}"    class="badge warning">LATE</span>
+                </td>
+                <td th:text="${rec.markedBy != null ? rec.markedBy.fullName : 'System'}">Faculty</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

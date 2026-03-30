@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Classes')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-student(activePage='classes')}"></aside>
+    <main class="main-content">
+
+      <div class="page-header">
+        <div>
+          <h1><i class="fas fa-chalkboard"></i> My Classes</h1>
+          <p class="page-subtitle">All classrooms you are enrolled in.</p>
+        </div>
+      </div>
+
+      <div th:if="${classes.size() == 0}" class="card">
+        <div class="empty-state large">
+          <i class="fas fa-chalkboard"></i>
+          <p>You are not enrolled in any class yet.</p>
+          <p>Contact your administrator to get enrolled.</p>
+        </div>
+      </div>
+
+      <div th:each="cls : ${classes}" class="card">
+        <div class="card-header">
+          <h3>
+            <span class="class-code-sm" th:text="${cls.classCode}">CS301</span>
+            &nbsp;<span th:text="${cls.className}">Name</span>
+          </h3>
+          <a th:href="@{/student/attendance(classId=${cls.id})}" class="btn-primary btn-sm">
+            <i class="fas fa-calendar-check"></i> My Attendance
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="two-col">
+
+            <!-- Class Info -->
+            <div>
+              <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:.75rem"
+                 th:text="${cls.description != null ? cls.description : 'No description available.'}">
+              </p>
+              <div class="list-item" style="padding:.4rem 0;border:none">
+                <div class="list-item-icon blue"><i class="fas fa-user-tie"></i></div>
+                <div class="list-item-content">
+                  <strong>Faculty</strong>
+                  <span th:text="${cls.faculty.fullName}">Faculty</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Schedule -->
+            <div>
+              <p style="font-size:.82rem;font-weight:600;color:var(--text-muted);
+                        text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem">
+                <i class="fas fa-clock"></i> Weekly Schedule
+              </p>
+              <div th:if="${schedulesByClass[cls.id] == null or schedulesByClass[cls.id].size() == 0}"
+                   style="font-size:.85rem;color:var(--text-muted)">
+                No schedule added yet.
+              </div>
+              <div th:each="sch : ${schedulesByClass[cls.id]}"
+                   style="display:flex;align-items:center;gap:.75rem;padding:.4rem 0;
+                          border-bottom:1px solid var(--border);font-size:.85rem">
+                <span class="badge info" th:text="${sch.dayOfWeek}">MON</span>
+                <span th:text="${sch.startTime + ' - ' + sch.endTime}">09:00 - 10:00</span>
+                <span th:if="${sch.roomNumber != null}"
+                      style="color:var(--text-muted)"
+                      th:text="'Room ' + ${sch.roomNumber}">Room</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

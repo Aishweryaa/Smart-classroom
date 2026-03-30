@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reports')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-admin(activePage='reports')}"></aside>
+    <main class="main-content">
+      <div class="page-header">
+        <h1><i class="fas fa-chart-bar"></i> Attendance Reports</h1>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Select a Classroom</h3></div>
+        <div class="card-body">
+          <div class="cards-grid">
+            <a th:each="cls : ${classrooms}"
+               th:href="@{/admin/reports/attendance/{id}(id=${cls.id})}"
+               class="report-card">
+              <div class="class-code" th:text="${cls.classCode}">CS301</div>
+              <div th:text="${cls.className}">Name</div>
+              <div class="report-card-meta" th:text="${cls.faculty.fullName}">Faculty</div>
+              <span class="badge info">View Report →</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

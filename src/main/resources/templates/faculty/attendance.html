@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mark Attendance')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-faculty(activePage='classes')}"></aside>
+    <main class="main-content">
+      <div th:replace="~{fragments/layout :: alerts}"></div>
+
+      <div class="page-header">
+        <div>
+          <h1><i class="fas fa-calendar-check"></i> Mark Attendance</h1>
+          <p class="page-subtitle">
+            <span th:text="${classroom.className}">Class</span>
+            (<span th:text="${classroom.classCode}">Code</span>)
+          </p>
+        </div>
+        <a th:href="@{/faculty/classes/{id}(id=${classroom.id})}" class="btn-secondary">
+          <i class="fas fa-arrow-left"></i> Back
+        </a>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Student List</h3>
+          <form method="get" class="inline-form">
+            <label>Session Date:</label>
+            <input type="date" name="date" th:value="${date}" onchange="this.form.submit()"/>
+          </form>
+        </div>
+        <div class="card-body">
+
+          <div th:if="${enrollments == null or enrollments.size() == 0}" class="empty-state">
+            <i class="fas fa-users"></i>
+            <p>No students enrolled in this class yet.</p>
+            <p>Ask admin to enroll students via Admin panel.</p>
+          </div>
+
+          <form th:if="${enrollments != null and enrollments.size() > 0}"
+                th:action="@{/faculty/attendance/{id}(id=${classroom.id})}"
+                method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <input type="hidden" name="date" th:value="${date}"/>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Student Name</th>
+                  <th>Username</th>
+                  <th>Mark Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="enr, i : ${enrollments}">
+                  <td th:text="${i.index + 1}">1</td>
+                  <td th:text="${enr.student.fullName}">Name</td>
+                  <td th:text="${enr.student.username}">username</td>
+                  <td>
+                    <div class="status-toggle-group">
+
+                      <label>
+                        <input type="radio"
+                               th:name="'status_' + ${enr.student.id}"
+                               value="PRESENT"
+                               th:checked="${currentStatus[enr.student.id] == null or currentStatus[enr.student.id].name() == 'PRESENT'}"/>
+                        <span class="present">PRESENT</span>
+                      </label>
+
+                      <label>
+                        <input type="radio"
+                               th:name="'status_' + ${enr.student.id}"
+                               value="ABSENT"
+                               th:checked="${currentStatus[enr.student.id] != null and currentStatus[enr.student.id].name() == 'ABSENT'}"/>
+                        <span class="absent">ABSENT</span>
+                      </label>
+
+                      <label>
+                        <input type="radio"
+                               th:name="'status_' + ${enr.student.id}"
+                               value="LATE"
+                               th:checked="${currentStatus[enr.student.id] != null and currentStatus[enr.student.id].name() == 'LATE'}"/>
+                        <span class="late">LATE</span>
+                      </label>
+
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="form-actions" style="margin-top:1rem">
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-save"></i> Save Attendance for <span th:text="${date}"></span>
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

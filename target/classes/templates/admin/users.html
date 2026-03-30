@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Manage Users')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-admin(activePage='users')}"></aside>
+
+```
+<main class="main-content">
+  <div th:replace="~{fragments/layout :: alerts}"></div>
+
+  <div class="page-header">
+    <div>
+      <h1><i class="fas fa-users"></i> Manage Users</h1>
+      <p class="page-subtitle">View, enable/disable, or delete system users.</p>
+    </div>
+    <a th:href="@{/admin/users/new}" class="btn-primary">
+      <i class="fas fa-user-plus"></i> Add User
+    </a>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h3>All Users</h3>
+      <input type="text" id="userSearch"
+             placeholder="Search users..."
+             onkeyup="filterTable('userSearch','userTable')"
+             class="search-input"/>
+    </div>
+
+    <div class="card-body">
+      <table class="data-table" id="userTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Full Name</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr th:each="u, i : ${users}">
+            <td th:text="${i.index + 1}">1</td>
+            <td th:text="${u.fullName}">Name</td>
+            <td><code th:text="${u.username}">username</code></td>
+            <td th:text="${u.email}">email</td>
+
+            <!-- ✅ FIXED ROLE -->
+            <td>
+              <span th:class="${u.role.name() == 'ADMIN' ? 'badge danger' : 
+                               (u.role.name() == 'FACULTY' ? 'badge warning' : 'badge info')}"
+                    th:text="${u.role}">
+                ROLE
+              </span>
+            </td>
+
+            <!-- STATUS -->
+            <td>
+              <span th:class="${u.enabled ? 'badge success' : 'badge danger'}"
+                    th:text="${u.enabled ? 'Active' : 'Disabled'}">
+                Active
+              </span>
+            </td>
+
+            <!-- ACTIONS -->
+            <td class="actions-cell">
+
+              <!-- Toggle -->
+              <form th:action="@{/admin/users/toggle/{id}(id=${u.id})}"
+                    method="post" style="display:inline">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}"/>
+
+                <button type="submit"
+                        th:class="${u.enabled ? 'btn-icon warning' : 'btn-icon success'}">
+                  <i th:class="${u.enabled ? 'fas fa-ban' : 'fas fa-check'}"></i>
+                </button>
+              </form>
+
+              <!-- Delete -->
+              <form th:action="@{/admin/users/delete/{id}(id=${u.id})}"
+                    method="post"
+                    style="display:inline"
+                    onsubmit="return confirm('Delete this user?')">
+
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}"/>
+
+                <button type="submit" class="btn-icon danger">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+
+            </td>
+          </tr>
+        </tbody>
+
+      </table>
+    </div>
+  </div>
+
+</main>
+```
+
+  </div>
+</div>
+
+<script th:src="@{/js/main.js}"></script>
+
+</body>
+</html>

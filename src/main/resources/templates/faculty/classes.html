@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My Classes')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-faculty(activePage='classes')}"></aside>
+    <main class="main-content">
+      <div class="page-header">
+        <h1><i class="fas fa-chalkboard-teacher"></i> My Classes</h1>
+      </div>
+      <div class="cards-grid">
+        <div th:each="cls : ${classes}" class="class-card">
+          <div class="class-card-header">
+            <span class="class-code" th:text="${cls.classCode}">CS301</span>
+          </div>
+          <div class="class-card-body">
+            <h3 th:text="${cls.className}">Name</h3>
+            <p th:text="${cls.description ?: 'No description.'}">Desc</p>
+          </div>
+          <div class="class-card-footer">
+            <a th:href="@{/faculty/classes/{id}(id=${cls.id})}" class="btn-secondary btn-sm">
+              <i class="fas fa-cog"></i> Manage
+            </a>
+            <a th:href="@{/faculty/attendance/{id}(id=${cls.id})}" class="btn-primary btn-sm">
+              <i class="fas fa-calendar-check"></i> Attendance
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

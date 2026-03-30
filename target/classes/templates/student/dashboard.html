@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-student(activePage='dashboard')}"></aside>
+    <main class="main-content">
+      <div th:replace="~{fragments/layout :: alerts}"></div>
+
+      <div class="page-header">
+        <div>
+          <h1>Welcome back, <span th:text="${student.fullName}">Student</span>!</h1>
+          <p class="page-subtitle">Here is your academic overview for today.</p>
+        </div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-chalkboard"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" th:text="${classes.size()}">0</span>
+            <span class="stat-label">Enrolled Classes</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange"><i class="fas fa-tasks"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" th:text="${pendingCount}">0</span>
+            <span class="stat-label">Pending Tasks</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" th:text="${overdueTasks.size()}">0</span>
+            <span class="stat-label">Overdue Tasks</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green"><i class="fas fa-chart-line"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" th:text="${completedPct + '%'}">0%</span>
+            <span class="stat-label">Tasks Completed</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Enrolled Classes -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-chalkboard"></i> My Classes</h3>
+            <a th:href="@{/student/classes}" class="link-all">View all</a>
+          </div>
+          <div class="card-body">
+            <div th:if="${classes.size() == 0}" class="empty-state">
+              <i class="fas fa-chalkboard"></i>
+              <p>No classes yet. Ask admin to enroll you.</p>
+            </div>
+            <div th:each="cls : ${classes}" class="list-item">
+              <div class="list-item-icon"><i class="fas fa-book-open"></i></div>
+              <div class="list-item-content">
+                <strong th:text="${cls.className}">Class Name</strong>
+                <span th:text="${cls.classCode}">Code</span>
+              </div>
+              <span class="badge info" th:text="${cls.faculty.fullName}">Faculty</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Announcements -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-bullhorn"></i> Announcements</h3>
+          </div>
+          <div class="card-body">
+            <div th:if="${announcements.size() == 0}" class="empty-state">
+              <i class="fas fa-bullhorn"></i>
+              <p>No announcements yet.</p>
+            </div>
+            <div th:each="ann : ${announcements}" class="announcement-item">
+              <div class="ann-header">
+                <strong th:text="${ann.title}">Title</strong>
+                <span th:if="${ann.classroom == null}" class="ann-badge global">Global</span>
+                <span th:if="${ann.classroom != null}" class="ann-badge class" th:text="${ann.classroom.classCode}">Code</span>
+              </div>
+              <p th:text="${ann.content}">Content</p>
+              <small th:text="${#temporals.format(ann.createdAt, 'dd MMM yyyy, HH:mm')}"></small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overdue Tasks Alert -->
+      <div th:if="${overdueTasks.size() > 0}" class="card alert-card">
+        <div class="card-header">
+          <h3><i class="fas fa-exclamation-triangle"></i> Overdue / Due Today</h3>
+          <a th:href="@{/student/planner}" class="link-all">Go to Planner</a>
+        </div>
+        <div class="card-body">
+          <div th:each="task : ${overdueTasks}" class="list-item overdue">
+            <div th:if="${task.priority.name() == 'HIGH'}"   class="priority-dot high"></div>
+            <div th:if="${task.priority.name() == 'MEDIUM'}" class="priority-dot medium"></div>
+            <div th:if="${task.priority.name() == 'LOW'}"    class="priority-dot low"></div>
+            <div class="list-item-content">
+              <strong th:text="${task.title}">Task</strong>
+              <span th:text="${task.subject}">Subject</span>
+            </div>
+            <span class="badge danger" th:text="${task.dueDate}">Due</span>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

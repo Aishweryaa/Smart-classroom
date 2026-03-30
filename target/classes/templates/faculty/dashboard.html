@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Faculty Dashboard')}"></head>
+<body>
+<div class="app-layout">
+  <nav th:replace="~{fragments/layout :: navbar}"></nav>
+  <div class="app-body">
+    <aside th:replace="~{fragments/layout :: sidebar-faculty(activePage='dashboard')}"></aside>
+    <main class="main-content">
+      <div th:replace="~{fragments/layout :: alerts}"></div>
+
+      <div class="page-header">
+        <div>
+          <h1>Faculty Dashboard</h1>
+          <p class="page-subtitle">Hello, <span th:text="${faculty.fullName}">Faculty</span>!</p>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue"><i class="fas fa-chalkboard-teacher"></i></div>
+          <div class="stat-info">
+            <span class="stat-value" th:text="${classes.size()}">0</span>
+            <span class="stat-label">Classes Taught</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- My Classes -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-chalkboard-teacher"></i> My Classes</h3>
+          </div>
+          <div class="card-body">
+            <div th:if="${classes.empty}" class="empty-state">
+              <p>No classes assigned yet.</p>
+            </div>
+            <div th:each="cls : ${classes}" class="list-item">
+              <div class="list-item-icon blue"><i class="fas fa-book-open"></i></div>
+              <div class="list-item-content">
+                <strong th:text="${cls.className}">Name</strong>
+                <span th:text="${cls.classCode}">Code</span>
+              </div>
+              <div class="list-item-actions">
+                <a th:href="@{/faculty/classes/{id}(id=${cls.id})}" class="btn-secondary btn-sm">
+                  Manage
+                </a>
+                <a th:href="@{/faculty/attendance/{id}(id=${cls.id})}" class="btn-primary btn-sm">
+                  Attendance
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Post Announcement -->
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fas fa-bullhorn"></i> Post Announcement</h3>
+          </div>
+          <div class="card-body">
+            <form th:action="@{/faculty/announcements/post}" method="post" class="inline-form-v">
+              <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" placeholder="Announcement title" required/>
+              </div>
+              <div class="form-group">
+                <label>Content</label>
+                <textarea name="content" rows="3" placeholder="Write your announcement..." required></textarea>
+              </div>
+              <div class="form-group">
+                <label>Target Class (optional - leave blank for global)</label>
+                <select name="classroomId">
+                  <option value="">-- All Students (Global) --</option>
+                  <option th:each="cls : ${classes}"
+                          th:value="${cls.id}"
+                          th:text="${cls.className}"></option>
+                </select>
+              </div>
+              <button type="submit" class="btn-primary">
+                <i class="fas fa-paper-plane"></i> Post
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Global Announcements -->
+      <div class="card">
+        <div class="card-header"><h3>Global Announcements</h3></div>
+        <div class="card-body">
+          <div th:if="${globalAnn.empty}" class="empty-state"><p>No global announcements.</p></div>
+          <div th:each="ann : ${globalAnn}" class="announcement-item">
+            <div class="ann-header">
+              <strong th:text="${ann.title}">Title</strong>
+              <span class="ann-badge global">Global</span>
+            </div>
+            <p th:text="${ann.content}">Content</p>
+            <small th:text="${#temporals.format(ann.createdAt,'dd MMM yyyy, HH:mm')}"></small>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>
